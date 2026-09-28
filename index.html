@@ -212,16 +212,10 @@
 </head>
 <body>
 
-    <!-- AUDIO DALLA CARTELLA LOCALE -->
-    <audio id="bg-music" loop preload="auto">
-        <source src="audio/sottofondo.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="error-sound" preload="auto">
-        <source src="audio/errore.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="success-sound" preload="auto">
-        <source src="audio/vittoria.mp3" type="audio/mpeg">
-    </audio>
+    <!-- AUDIO DALLA CARTELLA LOCALE OTTIMIZZATI -->
+    <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
+    <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
 
     <!-- SCHERMATA D'INGRESSO -->
     <div id="start-overlay">
@@ -284,8 +278,6 @@
         <p id="err2" class="alert"></p>
     </div>
 
-    <!-- (Tappe 3-9 rimanenti uguali...) -->
-
     <!-- TRAGUARDO FINALE -->
     <div id="step10" class="card hidden">
         <h2 style="font-size: 26px; color: var(--ghost-green);">☠️ COMPLIMENTI! ☠️</h2>
@@ -304,8 +296,13 @@
             document.getElementById('start-overlay').classList.add('hidden');
             let bgMusic = document.getElementById('bg-music');
             if (bgMusic) {
-                bgMusic.volume = 0.4;
-                bgMusic.play().catch(e => console.log("Audio bloccato"));
+                bgMusic.volume = 0.5;
+                let promise = bgMusic.play();
+                if (promise !== undefined) {
+                    promise.then(() => {
+                        console.log("Audio avviato con successo!");
+                    }).catch(e => console.log("Audio bloccato dal browser:", e));
+                }
             }
         }
 
