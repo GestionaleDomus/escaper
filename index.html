@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Ombra di Pontevecchio - Escape Night</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --blood-red: #8b0000;
+            --bright-red: #ff0000;
+            --ghost-green: #00ff66;
+            --dark-bg: #030101;
+            --panel-bg: rgba(10, 2, 2, 0.95);
+        }
+
+        @keyframes bloodPulse {
+            0% { background-color: #030101; }
+            50% { background-color: #120101; }
+            100% { background-color: #030101; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 15px var(--bright-red); }
+            50% { opacity: 0.8; text-shadow: 0 0 5px var(--blood-red); }
+            75% { opacity: 0.3; text-shadow: none; }
+            80% { opacity: 0.9; text-shadow: 0 0 20px var(--bright-red); }
+        }
+
+        body { 
+            background-color: var(--dark-bg); 
+            animation: bloodPulse 8s infinite ease-in-out;
+            color: #d1c7bd; 
+            font-family: 'Special Elite', cursive, monospace; 
+            padding: 10px; 
+            text-align: center; 
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 { 
+            font-family: 'Nosifer', cursive;
+            color: var(--bright-red); 
+            text-transform: uppercase; 
+            font-size: 20px;
+            letter-spacing: 2px; 
+            animation: flicker 3s infinite;
+            margin-top: 15px;
+        }
+
+        h2 {
+            font-family: 'Creepster', cursive;
+            color: #ff3333;
+            font-size: 24px;
+            margin-top: 5px;
+            text-shadow: 2px 2px 8px #000, 0 0 10px var(--blood-red);
+            letter-spacing: 1px;
+        }
+
+        p.intro { 
+            font-size: 13px; 
+            color: #b0a599; 
+            font-style: italic; 
+            text-shadow: 0 0 5px #000;
+        }
+
+        .card { 
+            border: 2px solid var(--blood-red); 
+            background: var(--panel-bg); 
+            padding: 18px; 
+            margin: 15px auto; 
+            max-width: 500px;
+            border-radius: 12px; 
+            box-shadow: 0 0 25px rgba(139, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.9);
+            position: relative;
+        }
+
+        .location-hint { 
+            background: rgba(15, 0, 0, 0.85); 
+            border-left: 4px solid var(--bright-red); 
+            border-right: 1px solid var(--blood-red);
+            padding: 12px; 
+            margin: 12px 0; 
+            text-align: left; 
+            font-size: 13px; 
+            line-height: 1.5;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .map-clue-box {
+            margin: 12px 0;
+            border: 1px solid var(--bright-red);
+            border-radius: 6px;
+            background: #000;
+            padding: 10px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .map-clue-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .photo-caption {
+            font-size: 12px;
+            color: #ff6666;
+            margin-top: 8px;
+            font-family: 'Creepster', cursive;
+            letter-spacing: 1px;
+        }
+
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #scanner-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 360px;
+            border: 2px solid var(--bright-red);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px var(--bright-red);
+        }
+        
+        input[type="text"] { 
+            background: #000; 
+            border: 2px solid var(--blood-red); 
+            color: var(--ghost-green); 
+            font-family: 'Creepster', cursive;
+            letter-spacing: 3px;
+            padding: 10px; 
+            font-size: 22px; 
+            width: 80%; 
+            margin-bottom: 12px; 
+            text-align: center; 
+            border-radius: 6px; 
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(139, 0, 0, 0.8);
+        }
+
+        button { 
+            background: linear-gradient(180deg, #8b0000 0%, #300000 100%);
+            color: #fff; 
+            border: 1px solid #ff4d4d; 
+            padding: 12px 20px; 
+            font-family: 'Special Elite', cursive;
+            font-size: 13px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            text-transform: uppercase; 
+            margin: 8px 3px; 
+            display: inline-block; 
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+        }
+
+        .start-btn {
+            font-family: 'Creepster', cursive;
+            font-size: 22px;
+            padding: 18px 25px;
+            background: var(--bright-red);
+            color: #000;
+            border: 2px solid #fff;
+            box-shadow: 0 0 30px var(--bright-red);
+            animation: flicker 1.5s infinite;
+        }
+
+        .scan-btn { 
+            background: linear-gradient(180deg, #1f7a8c 0%, #082329 100%); 
+            border-color: #66fcf1; 
+            box-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+        }
+
+        .radar-btn {
+            background: linear-gradient(180deg, #004d1a 0%, #001a0a 100%) !important;
+            border-color: #00ff66 !important;
+            color: #00ff66 !important;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4) !important;
+        }
+
+        .cancel-btn { background: #222; border-color: #666; color: #aaa; }
+        .hidden { display: none !important; }
+        
+        .alert { 
+            color: var(--bright-red); 
+            font-family: 'Creepster', cursive; 
+            font-size: 20px; 
+            margin-top: 10px;
+        }
+
+        /* MODALE RADAR GIROSCOPICO */
+        #radar-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-box {
+            border: 2px solid #00ff66;
+            background: #030d06;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.5);
+            text-align: center;
+            max-width: 330px;
+            width: 90%;
+        }
+
+        .radar-viewport {
+            width: 220px;
+            height: 220px;
+            border: 2px solid #00ff66;
+            border-radius: 50%;
+            margin: 15px auto;
+            position: relative;
+            background: radial-gradient(circle, rgba(0,255,102,0.1) 0%, rgba(0,0,0,0.95) 75%);
+            overflow: hidden;
+            box-shadow: inset 0 0 20px #00ff66;
+        }
+
+        /* Centro giocatore */
+        .player-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 10px; height: 10px;
+            background: #00ff66;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px #00ff66;
+            z-index: 10;
+        }
+
+        /* Griglia rotante con la bussola */
+        .radar-grid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            transition: transform 0.1s ease-out;
+        }
+
+        .radar-grid::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 1px;
+            background: rgba(0, 255, 102, 0.3);
+        }
+        .radar-grid::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%; width: 1px; height: 100%;
+            background: rgba(0, 255, 102, 0.3);
+        }
+
+        /* Scansione ad ago */
+        .radar-line {
+            width: 50%; height: 50%;
+            background: linear-gradient(45deg, rgba(0,255,102,0.8) 0%, transparent 70%);
+            position: absolute;
+            top: 0; left: 0;
+            transform-origin: 100% 100%;
+            animation: radarScan 2s linear infinite;
+            border-radius: 100% 0 0 0;
+        }
+
+        @keyframes radarScan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Anima Spettrale (Puntino rosso) */
+        .spirit-dot {
+            position: absolute;
+            width: 12px; height: 12px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ff0000;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO LOCALI -->
+    <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
+    <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
+
+    <!-- SCHERMATA D'INGRESSO -->
+    <div id="start-overlay">
+        <h1 style="font-size: 28px; margin-bottom: 20px;">👁️ SEI PRONTO? 👁️</h1>
+        <p style="color: #aaa; font-size: 14px; margin-bottom: 30px; max-width: 300px;">
+            Alzate il volume per ascoltare la maledizione...
+        </p>
+        <button class="start-btn" onclick="unlockAudioAndStart()">🕯️ ENTRA SE HAI CORAGGIO</button>
+    </div>
+
+    <h1>🕸️ PONTEVECCHIO NIGHT 🎃</h1>
+    <p class="intro"><i>"Decifrate gli enigmi per scoprire dove vi condurrà la notte..."</i></p>
+
+    <!-- PULSANTE RADAR DELL'OCCULTO -->
+    <button class="radar-btn" onclick="openRadar()">📡 RADAR GIROSCOPICO</button>
+
+    <!-- SCANNER MODALE -->
+    <div id="scanner-modal" class="hidden">
+        <h3 style="color: var(--ghost-green); font-family: 'Creepster', cursive; margin-bottom: 10px;">📷 INQUADRA IL QR CODE</h3>
+        <div id="reader"></div>
+        <button class="cancel-btn" onclick="stopScanner()" style="margin-top: 15px;">✖ Chiudi Fotocamera</button>
+    </div>
+
+    <!-- RADAR MODALE CON GIROSCOPIO -->
+    <div id="radar-modal" class="hidden">
+        <div class="radar-box">
+            <h3 style="color: #00ff66; font-family: 'Creepster', cursive; margin-bottom: 5px;">📡 RILEVATORE ANIME PERDUTE</h3>
+            <p style="color: #888; font-size: 11px; margin-bottom: 10px;">Ruota fisicamente su te stesso per individuare le presenze</p>
+            
+            <div class="radar-viewport">
+                <div class="player-center"></div>
+                <div id="radar-grid" class="radar-grid">
+                    <div class="radar-line"></div>
+                    <!-- Anima Reale Tracciata -->
+                    <div id="spirit-target" class="spirit-dot"></div>
+                </div>
+            </div>
+
+            <p id="radar-distance" style="color: #ff3333; font-weight: bold; font-size: 18px; margin-top: 10px;">DISTANZA: -- m</p>
+            <p id="radar-status" style="color: #00ff66; font-size: 12px; margin-top: 5px;">Scansione frequenze...</p>
+            
+            <button class="cancel-btn" onclick="closeRadar()" style="margin-top: 15px;">✖ Chiudi Radar</button>
+        </div>
+    </div>
+
+    <!-- TAPPA 1 -->
+    <div id="step1" class="card">
+        <h2>🩸 I. Il Risveglio delle Ombre</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa1.jpg" alt="Tappa 1" onerror="this.style.display='none'">
+            <div class="photo-caption">🕯️ Enigma dell'Origine</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Alzate lo sguardo verso l'alta torre di pietra dove il bronzo scandisce le ore nel buio della piazza.<br><br>
+            Alla sua base, nel luogo consacrato alla memoria di chi ha combattuto ed è svanito nel tempo, vi attende il PRIMO SIGILLO nascosto.<br><br>
+            <b>Scovate la pietra del ricordo sotto la torre per spezzare il primo codice!</b>"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(1, 'FONTE', 'step2')">📷 SCATTA QR CODE 1</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans1" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(1, 'FONTE', 'step2')">Spezza il Sigillo</button>
+        <p id="err1" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 2 -->
+    <div id="step2" class="card hidden">
+        <h2>🩸 II. Il Fluire Incessante</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa2.jpg" alt="Tappa 2" onerror="this.style.display='none'">
+            <div class="photo-caption">❄️ Enigma della Casetta Tecnologica</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Avete risvegliato il primo sigillo! Non cercate una semplice fontanella di strada, ma la moderna dimora di pietra dove l'acqua viene erogata.<br><br>
+            Lì i viandanti del paese usano la propria tessera o il loro codice personale per far scorrere l'elisir fresco nel buio della notte.<br><br>
+            <b>Raggiungete la casetta dell'erogazione per trovare il secondo sigillo!</b>"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(2, 'CURA', 'step3')">📷 SCATTA QR CODE 2</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans2" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(2, 'CURA', 'step3')">Spezza il Sigillo</button>
+        <p id="err2" class="alert"></p>
+    </div>
+
+    <!-- TRAGUARDO FINALE -->
+    <div id="step10" class="card hidden">
+        <h2 style="font-size: 26px; color: var(--ghost-green);">☠️ COMPLIMENTI! ☠️</h2>
+        <p>Avete ricomposto l'intera catena e spezzato il maleficio di Pontevecchio!</p>
+        <div style="border: 2px dashed var(--ghost-green); padding: 10px; background: #000; margin-top: 10px;">
+            <p style="margin: 0; font-size: 12px; color: #aaa;">MASTER CODE CASSA FINALE:</p>
+            <h3 style="color: var(--bright-red); font-family: 'Nosifer', cursive; font-size: 10px; margin: 10px 0; word-break: break-all;">CADUTI-FONTE-CURA-1859-OMBRA-FERRO-32-TUFFO-CAVA</h3>
+        </div>
+    </div>
+
+    <script>
+        let activeStep = 0, activeExpectedAnswer = "", activeNextStep = "";
+        let html5QrCode = null;
+
+        // DATI ANIMA SPETTRALE PER RADAR
+        let spiritAngle = 140; // Angolo della presenza (in gradi)
+        let spiritDistance = 18; // Distanza iniziale in metri
+        let audioCtx = null;
+
+        function unlockAudioAndStart() {
+            document.getElementById('start-overlay').classList.add('hidden');
+            let bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+                bgMusic.volume = 0.5;
+                bgMusic.play().catch(e => console.log("Audio bloccato:", e));
+            }
+        }
+
+        function playErrorSound() {
+            let sound = document.getElementById('error-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function playSuccessSound() {
+            let sound = document.getElementById('success-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function checkStep(currentStep, correctAnswer, nextStepId) {
+            let inputVal = document.getElementById('ans' + currentStep).value.trim().toUpperCase();
+            if (inputVal === correctAnswer) {
+                playSuccessSound();
+                document.getElementById('step' + currentStep).classList.add('hidden');
+                document.getElementById(nextStepId).classList.remove('hidden');
+                window.scrollTo(0, 0);
+            } else {
+                playErrorSound();
+                document.getElementById('err' + currentStep).innerText = "☠️ Codice errato! Rileggi l'enigma.";
+            }
+        }
+
+        function startScanner(step, expectedAnswer, nextStep) {
+            activeStep = step;
+            activeExpectedAnswer = expectedAnswer;
+            activeNextStep = nextStep;
+
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    if (decodedText.trim().toUpperCase().includes(activeExpectedAnswer)) {
+                        playSuccessSound();
+                        stopScanner();
+                        document.getElementById('step' + activeStep).classList.add('hidden');
+                        document.getElementById(activeNextStep).classList.remove('hidden');
+                        alert("🩸 Sigillo Spezzato!");
+                        window.scrollTo(0, 0);
+                    } else {
+                        playErrorSound();
+                        alert("⚠️ QR Code non valido per questa tappa!");
+                    }
+                },
+                () => {}
+            ).catch(() => {
+                alert("Fotocamera non disponibile. Inserisci il codice a mano!");
+                stopScanner();
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-modal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scanner-modal').classList.add('hidden');
+            }
+        }
+
+        /* --- LOGICA GIROSCOPIO E RADAR REALE --- */
+        function openRadar() {
+            document.getElementById('radar-modal').classList.remove('hidden');
+
+            // Richiesta permessi bussola/giroscopio per iOS 13+
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation, true);
+                        }
+                    }).catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation, true);
+            }
+
+            updateSpiritPosition();
+        }
+
+        function closeRadar() {
+            document.getElementById('radar-modal').classList.add('hidden');
+            window.removeEventListener('deviceorientation', handleOrientation, true);
+        }
+
+        function handleOrientation(event) {
+            let heading = event.alpha; // Gradi di rotazione bussola (0-360°)
+            if (event.webkitCompassHeading) {
+                heading = event.webkitCompassHeading; // Supporto iOS
+            }
+
+            if (heading !== null && heading !== undefined) {
+                // Ruota la griglia del radar in base alla direzione fisica del telefono
+                const radarGrid = document.getElementById('radar-grid');
+                radarGrid.style.transform = `rotate(${-heading}deg)`;
+
+                // Calcola l'allineamento tra il telefono e l'anima perduta
+                let diff = Math.abs((heading - spiritAngle + 360) % 360);
+                if (diff > 180) diff = 360 - diff;
+
+                // Se sei puntato verso l'anima (entro 30°), simula l'avvicinamento!
+                if (diff < 30) {
+                    if (spiritDistance > 2) spiritDistance -= 0.15; // Ti stai avvicinando
+                    document.getElementById('radar-status').innerText = "⚠️ TI STAI AVVICINANDO ALLA PRESENZA!";
+                    document.getElementById('radar-status').style.color = "#ff3333";
+                } else {
+                    if (spiritDistance < 20) spiritDistance += 0.05; // Ti stai allontanando
+                    document.getElementById('radar-status').innerText = "👁️ Ruota lo smartphone per cercare il segnale...";
+                    document.getElementById('radar-status').style.color = "#00ff66";
+                }
+
+                document.getElementById('radar-distance').innerText = `DISTANZA: ${spiritDistance.toFixed(1)} m`;
+                updateSpiritPosition();
+            }
+        }
+
+        function updateSpiritPosition() {
+            const spiritDot = document.getElementById('spirit-target');
+            // Mappa la distanza reale sul raggio del radar (220px totale -> 110px raggio)
+            let radiusPixels = Math.min((spiritDistance / 20) * 90, 95); 
+
+            let rad = (spiritAngle - 90) * (Math.PI / 180);
+            let x = 110 + radiusPixels * Math.cos(rad);
+            let y = 110 + radiusPixels * Math.sin(rad);
+
+            spiritDot.style.left = `${x}px`;
+            spiritDot.style.top = `${y}px`;
+        }
+    </script>
+</body>
+</html>
