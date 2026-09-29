@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Ombra di Pontevecchio - Escape Night</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            text-align: center;
+        }
+        h1 {
+            color: #ff3333;
+            text-transform: uppercase;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+        .card {
+            border: 2px solid #ff3333;
+            background: #1e1e1e;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+        .location-hint {
+            background: #2a2a2a;
+            border-left: 4px solid #ff3333;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .map-clue-box {
+            margin: 10px 0;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #000;
+            padding: 5px;
+        }
+        .map-clue-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        #scanner-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #reader {
+            width: 100%;
+            max-width: 350px;
+            border: 2px solid #ff3333;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+        input[type="text"] {
+            background: #000;
+            border: 1px solid #ff3333;
+            color: #00ff00;
+            padding: 10px;
+            font-size: 18px;
+            width: 80%;
+            margin-bottom: 10px;
+            text-align: center;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            background: #8b0000;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            text-transform: uppercase;
+            margin: 5px;
+            display: inline-block;
+        }
+        button:active { background: #ff0000; }
+        .scan-btn { background: #005f73; }
+        .music-btn { background: #3a0ca3; border: 1px solid #7209b7; }
+        .cancel-btn { background: #333; }
+        .hidden { display: none !important; }
+        .alert { color: #ff3333; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO LOCALI -->
+    <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
+    <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
+
+    <h1>🕸️ L'Ombra di Pontevecchio 🎃</h1>
+    <p><i>Decifrate gli enigmi per procedere nella notte...</i></p>
+
+    <!-- PULSANTE CONTROLLO MUSICA -->
+    <button class="music-btn" onclick="toggleMusic()">🔊 Attiva / Disattiva Musica</button>
+
+    <!-- SCANNER MODALE -->
+    <div id="scanner-modal" class="hidden">
+        <h3 style="color: #00ff00; margin-bottom: 10px;">Inquadra il QR Code della Tappa</h3>
+        <div id="reader"></div>
+        <button class="cancel-btn" onclick="stopScanner()" style="margin-top: 15px;">Chiudi Fotocamera</button>
+    </div>
+
+    <!-- PUNTO DI PARTENZA -->
+    <div id="step-start" class="card">
+        <h2>🩸 Punto di Partenza</h2>
+        <div class="location-hint">
+            <b>🕯️ Benvenuti all'Escape Night:</b><br>
+            <i>"Siete pronti a spezzare i sigilli dell'Ombra?<br><br>
+            Premete il pulsante qua sotto per andare alla prima tappa!"</i>
+        </div>
+        <button style="font-size: 16px; width: 90%; margin-top: 15px;" onclick="startGame('step-start', 'step0')">Inizia la Caccia 🚪</button>
+    </div>
+
+    <!-- TAPPA 0: (Codice = FONTE) -->
+    <div id="step0" class="card hidden">
+        <h2>🩸 Tappa 0: Il Risveglio delle Ombre</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa0.jpg" alt="Tappa 0" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Alzate lo sguardo verso l'alta torre di pietra dove il bronzo scandisce le ore nel buio della piazza.<br><br>
+            Alla sua base, nel luogo consacrato alla memoria di chi ha combattuto ed è svanito nel tempo, vi attende il PRIMO SIGILLO nascosto.<br><br>
+            <b>Scovate la pietra del ricordo sotto la torre per spezzare il primo codice!</b>"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(0, 'FONTE', 'step1')">Scansiona QR Code Tappa 0 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans0" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(0, 'FONTE', 'step1')">Spezza il Sigillo</button>
+        <p id="err0" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 1: (Codice = CURA) -->
+    <div id="step1" class="card hidden">
+        <h2>🩸 Tappa 1: La Fonte Gelida</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa1.jpg" alt="Tappa 1" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Dove la fonte pura sgorga senza sosta per dissetare i viandanti. Nel buio della notte l'acqua scorre fredda: trovate la casetta di pietra dove il secondo sigillo è custodito."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(1, 'CURA', 'step2')">Scansiona QR Code Tappa 1 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans1" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(1, 'CURA', 'step2')">Spezza il Sigillo</button>
+        <p id="err1" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 2: (Codice = 1859) -->
+    <div id="step2" class="card hidden">
+        <h2>🩸 Tappa 2: Il Rifugio della Guarigione</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa2.jpg" alt="Tappa 2" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Un tempo qui si cercavano rimedi e spezie per scacciare la peste. La croce veglia sugli ammalati: cercate il sigillo dove si trova la pozione per la cura."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(2, '1859', 'step3')">Scansiona QR Code Tappa 2 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans2" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(2, '1859', 'step3')">Spezza il Sigillo</button>
+        <p id="err2" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 3: (Codice = OMBRA) -->
+    <div id="step3" class="card hidden">
+        <h2>🩸 Tappa 3: Il Giardino della Battaglia</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa3.jpg" alt="Tappa 3" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Sul retro della nobile Villa Castiglioni, dove l'erba del parchetto ricorda il sangue dei soldati caduti. Trovate l'anno dello storico scontro del paese."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(3, 'OMBRA', 'step4')">Scansiona QR Code Tappa 3 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans3" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(3, 'OMBRA', 'step4')">Spezza il Sigillo</button>
+        <p id="err3" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 4: (Codice = FERRO) -->
+    <div id="step4" class="card hidden">
+        <h2>🩸 Tappa 4: Il Passaggio di Roccia</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa4.jpg" alt="Tappa 4" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Sotto solide arcate di pietra che uniscono le due sponde del grande Naviglio. Dove i passi risuonano sulla roccia antica, cercate il quinto sigillo."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(4, 'FERRO', 'step5')">Scansiona QR Code Tappa 4 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans4" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(4, 'FERRO', 'step5')">Spezza il Sigillo</button>
+        <p id="err4" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 5: (Codice = 32) -->
+    <div id="step5" class="card hidden">
+        <h2>🩸 Tappa 5: Lo Scavalcavia Metallico</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa5.jpg" alt="Tappa 5" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Non più pietra, ma fredde travi di metallo sospese sulle acque del Naviglio. Trovate il sigillo inciso sulle travi d'acciaio del secondo ponte."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(5, '32', 'step6')">Scansiona QR Code Tappa 5 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans5" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(5, '32', 'step6')">Spezza il Sigillo</button>
+        <p id="err5" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 6: (Codice = TUFFO) -->
+    <div id="step6" class="card hidden">
+        <h2>🩸 Tappa 6: Il Bivio delle Due Vie</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa6.jpg" alt="Tappa 6" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Siamo all'incrocio tra la via del pittore (C...) e la via del vaso (B...). Prendi il numero della posizione alfabetica della prima lettera (C=3) e della seconda (B=2) per formare il codice!"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(6, 'TUFFO', 'step7')">Scansiona QR Code Tappa 6 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans6" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(6, 'TUFFO', 'step7')">Spezza il Sigillo</button>
+        <p id="err6" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 7: (Codice = CAVA) -->
+    <div id="step7" class="card hidden">
+        <h2>🩸 Tappa 7: Il Corso del Ruscello</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa7.jpg" alt="Tappa 7" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Lontano dal centro, lungo le sponde del canale Sturgin. Cercate il punto dove i giovani più audaci sfidavano la corrente lanciandosi nelle acque."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(7, 'CAVA', 'step8')">Scansiona QR Code Tappa 7 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans7" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(7, 'CAVA', 'step8')">Spezza il Sigillo</button>
+        <p id="err7" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 8: (Traguardo) -->
+    <div id="step8" class="card hidden">
+        <h2>🩸 Tappa 8: Lo Sterrato della Cava</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa8.jpg" alt="Tappa 8" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Abbandonate l'asfalto ed entrate sul sentiero sterrato del parco dove un tempo si scavava la terra. Tra gli alberi vi attende l'ultimo Guardiano!"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(8, 'CAVA', 'step10')">Scansiona QR Code Tappa 8 📷</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans8" placeholder="Inserisci codice">
+        <br>
+        <button onclick="checkStep(8, 'CAVA', 'step10')">Spezza l'Ultimo Sigillo</button>
+        <p id="err8" class="alert"></p>
+    </div>
+
+    <!-- TRAGUARDO FINALE -->
+    <div id="step10" class="card hidden">
+        <h2 style="font-size: 24px; color: #00ff00;">☠️ COMPLIMENTI! ☠️</h2>
+        <p>Avete ricomposto l'intera catena e spezzato il maleficio di Pontevecchio!</p>
+        <div style="border: 2px dashed #00ff00; padding: 10px; background: #000; margin-top: 15px; border-radius: 5px;">
+            <p style="margin: 0; font-size: 12px; color: #aaa;">MASTER CODE CASSA FINALE:</p>
+            <h3 style="color: #ff3333; font-size: 14px; margin: 5px 0; word-break: break-all;">FONTE-CURA-1859-OMBRA-FERRO-32-TUFFO-CAVA</h3>
+        </div>
+    </div>
+
+    <script>
+        let activeStep = 0, activeExpectedAnswer = "", activeNextStep = "";
+        let html5QrCode = null;
+
+        function toggleMusic() {
+            let bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+                if (bgMusic.paused) {
+                    bgMusic.volume = 0.5;
+                    bgMusic.play().catch(e => console.log("Errore riproduzione:", e));
+                } else {
+                    bgMusic.pause();
+                }
+            }
+        }
+
+        function startGame(currentStepId, nextStepId) {
+            toggleMusic();
+            goToNextStep(currentStepId, nextStepId);
+        }
+
+        function goToNextStep(currentStepId, nextStepId) {
+            playSuccessSound();
+            document.getElementById(currentStepId).classList.add('hidden');
+            document.getElementById(nextStepId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function playErrorSound() {
+            let sound = document.getElementById('error-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function playSuccessSound() {
+            let sound = document.getElementById('success-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function checkStep(currentStep, correctAnswer, nextStepId) {
+            let inputVal = document.getElementById('ans' + currentStep).value.trim().toUpperCase();
+            if (inputVal === correctAnswer) {
+                goToNextStep('step' + currentStep, nextStepId);
+            } else {
+                playErrorSound();
+                if ("vibrate" in navigator) navigator.vibrate(200);
+                document.getElementById('err' + currentStep).innerText = "☠️ Codice errato! Rileggi l'enigma.";
+            }
+        }
+
+        function startScanner(step, expectedAnswer, nextStep) {
+            activeStep = step;
+            activeExpectedAnswer = expectedAnswer;
+            activeNextStep = nextStep;
+
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    if (decodedText.trim().toUpperCase().includes(activeExpectedAnswer)) {
+                        playSuccessSound();
+                        stopScanner();
+                        goToNextStep('step' + activeStep, activeNextStep);
+                    } else {
+                        playErrorSound();
+                        alert("⚠️ QR Code non valido per questa tappa!");
+                    }
+                },
+                () => {}
+            ).catch(() => {
+                alert("Fotocamera non disponibile. Inserisci il codice a mano!");
+                stopScanner();
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-modal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scanner-modal').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
