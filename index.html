@@ -382,7 +382,7 @@
         <p id="err0" class="alert"></p>
     </div>
 
-    <!-- TAPPA 1: LA CASETTA DELL'ACQUA (Codice = CURA) -->
+        <!-- TAPPA 1: LA CASETTA DELL'ACQUA (Codice = CURA) -->
     <div id="step1" class="card hidden">
         <h2>🩸 I. La Fonte Gelida</h2>
         <div class="map-clue-box">
@@ -390,12 +390,16 @@
         </div>
         <div class="location-hint">
             <b>🕯️ Enigma Toponomastico:</b><br>
-            <i>"Dove la fonte pura sgorga senza sosta per dissetare i viandanti. Nel buio della notte l'acqua scorre fredda: trovate la casetta di pietra dove il secondo sigillo è custodito."</i>
+            <i>"Nel buio della notte l'acqua scorre fredda e cristallina, ma non cercate una semplice fontana di pietra. Trovate il moderno dispensatore d'acciaio dove il popolo attinge la sua riserva liquida: lì è custodito il secondo sigillo."</i>
         </div>
         <button class="scan-btn" onclick="startScanner(1, 'CURA', 'step2')">📷 SCATTA QR CODE 1</button>
         <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
         <input type="text" id="ans1" placeholder="Codice trovato">
         <br>
+        <button onclick="checkStep(1, 'CURA', 'step2')">Spezza il Sigillo</button>
+        <p id="err1" class="alert"></p>
+    </div>
+
         <button onclick="checkStep(1, 'CURA', 'step2')">Spezza il Sigillo</button>
         <p id="err1" class="alert"></p>
     </div>
