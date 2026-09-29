@@ -538,4 +538,167 @@
             </h4>
         </div>
     </div>
+        <script>
+        let activeStep = 0, activeExpectedAnswer = "", activeNextStep = "";
+        let html5QrCode = null;
+
+        let spiritAngle = 140; 
+        let spiritDistance = 18; 
+
+        function startGame() {
+            let bgMusic = document.getElementById('bg-music');
+            if (bgMusic) {
+                bgMusic.volume = 0.5;
+                bgMusic.play().catch(e => console.log("Audio non riprodotto:", e));
+            }
+            goToNextStep('step-start', 'step0');
+        }
+
+        function goToNextStep(currentStepId, nextStepId) {
+            playSuccessSound();
+            document.getElementById(currentStepId).classList.add('hidden');
+            document.getElementById(nextStepId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function playErrorSound() {
+            let sound = document.getElementById('error-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function playSuccessSound() {
+            let sound = document.getElementById('success-sound');
+            if (sound) { sound.currentTime = 0; sound.play().catch(e => {}); }
+        }
+
+        function checkStep(currentStep, correctAnswer, nextStepId) {
+            let inputVal = document.getElementById('ans' + currentStep).value.trim().toUpperCase();
+            if (inputVal === correctAnswer) {
+                goToNextStep('step' + currentStep, nextStepId);
+            } else {
+                playErrorSound();
+                if ("vibrate" in navigator) navigator.vibrate(200);
+                document.getElementById('err' + currentStep).innerText = "☠ Codice errato! Rileggi l'enigma.";
+            }
+        }
+
+        function checkStep8Final() {
+            let inputEl = document.getElementById('ans8');
+            if (!inputEl) return;
+            
+            let inputVal = inputEl.value.trim().toUpperCase();
+            inputVal = inputVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            if (inputVal === "FELICITA") {
+                goToNextStep('step8', 'step10');
+            } else {
+                playErrorSound();
+                if ("vibrate" in navigator) navigator.vibrate(200);
+                document.getElementById('err8').innerText = "☠️ Risposta errata! Rileggi l'enigma.";
+            }
+        }
+
+        function startScanner(step, expectedAnswer, nextStep) {
+            activeStep = step;
+            activeExpectedAnswer = expectedAnswer;
+            activeNextStep = nextStep;
+
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    if (decodedText.trim().toUpperCase().includes(activeExpectedAnswer)) {
+                        playSuccessSound();
+                        stopScanner();
+                        goToNextStep('step' + activeStep, activeNextStep);
+                    } else {
+                        playErrorSound();
+                        alert("⚠️ QR Code non valido per questa tappa!");
+                    }
+                },
+                () => {}
+            ).catch(() => {
+                alert("Fotocamera non disponibile. Inserisci il codice a mano!");
+                stopScanner();
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-modal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scanner-modal').classList.add('hidden');
+            }
+        }
+
+        function openRadar() {
+            document.getElementById('radar-modal').classList.remove('hidden');
+
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation, true);
+                        }
+                    }).catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation, true);
+            }
+
+            updateSpiritPosition();
+        }
+
+        function closeRadar() {
+            document.getElementById('radar-modal').classList.add('hidden');
+            window.removeEventListener('deviceorientation', handleOrientation, true);
+        }
+
+        function handleOrientation(event) {
+            let heading = event.alpha;
+            if (event.webkitCompassHeading) {
+                heading = event.webkitCompassHeading;
+            }
+
+            if (heading !== null && heading !== undefined) {
+                const radarGrid = document.getElementById('radar-grid');
+                radarGrid.style.transform = `rotate(${-heading}deg)`;
+
+                let diff = Math.abs((heading - spiritAngle + 360) % 360);
+                if (diff > 180) diff = 360 - diff;
+
+                if (diff < 30) {
+                    if (spiritDistance > 1.5) spiritDistance -= 0.2;
+                    document.getElementById('radar-status').innerText = "⚠️ PRESENZA VICINISSIMA!";
+                    document.getElementById('radar-status').style.color = "#ff3333";
+                } else {
+                    if (spiritDistance < 18) spiritDistance += 0.05;
+                    document.getElementById('radar-status').innerText = "👁️ Ruota lo smartphone per cercare il segnale...";
+                    document.getElementById('radar-status').style.color = "#00ff66";
+                }
+
+                document.getElementById('radar-distance').innerText = `DISTANZA: ${spiritDistance.toFixed(1)} m`;
+                updateSpiritPosition();
+            }
+        }
+
+        function updateSpiritPosition() {
+            const spiritDot = document.getElementById('spirit-target');
+            let radiusPixels = Math.min((spiritDistance / 20) * 90, 95); 
+
+            let rad = (spiritAngle - 90) * (Math.PI / 180);
+            let x = 110 + radiusPixels * Math.cos(rad);
+            let y = 110 + radiusPixels * Math.sin(rad);
+
+            spiritDot.style.left = `${x}px`;
+            spiritDot.style.top = `${y}px`;
+        }
+    </script>
+</body>
+</html>
+
     
