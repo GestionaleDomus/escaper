@@ -294,7 +294,8 @@
     <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
     <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
     <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
-
+    <audio id="champions-sound" src="audio/champions.mp3" preload="auto"></audio>
+    
     <h1>🕸️ PONTEVECCHIO NIGHT 🎃</h1>
     <p class="intro"><i>"Decifrate gli enigmi per scoprire dove vi condurrà la notte..."</i></p>
 
@@ -578,7 +579,7 @@
             }
         }
 
-        function checkStep8Final() {
+                function checkStep8Final() {
             let inputEl = document.getElementById('ans8');
             if (!inputEl) return;
             
@@ -586,13 +587,25 @@
             inputVal = inputVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
             if (inputVal === "FELICITA") {
+                // Ferma il sottofondo horror
+                let bgMusic = document.getElementById('bg-music');
+                if (bgMusic) bgMusic.pause();
+
+                // Fai partire We Are The Champions
+                let victorySong = document.getElementById('champions-sound');
+                if (victorySong) {
+                    victorySong.volume = 0.8;
+                    victorySong.play().catch(e => console.log("Audio non riprodotto:", e));
+                }
+
                 goToNextStep('step8', 'step10');
             } else {
                 playErrorSound();
                 if ("vibrate" in navigator) navigator.vibrate(200);
                 document.getElementById('err8').innerText = "☠️ Risposta errata! Rileggi l'enigma.";
             }
-        }
+                }
+            
 
         function startScanner(step, expectedAnswer, nextStep) {
             activeStep = step;
