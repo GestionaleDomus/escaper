@@ -517,50 +517,43 @@
         <p id="err7" class="alert"></p>
     </div>
 
-    <!-- TAPPA 8: PARCO DELLA CAVA (Codice finale = CAVA) -->
+        <!-- TAPPA 8: PARCO DELLA CAVA (Codice = FELICITA) -->
     <div id="step8" class="card hidden">
         <h2>🩸 VIII. Lo Sterrato della Cava</h2>
         <div class="map-clue-box">
             <img src="img/tappa8.jpg" alt="Tappa 8" onerror="this.style.display='none'">
         </div>
         <div class="location-hint">
-            <b>🕯️ Enigma Toponomastico:</b><br>
-            <i>"Abbandonate l'asfalto ed entrate sul sentiero sterrato del parco dove un tempo si scavava la terra. Tra gli alberi vi attende l'ultimo Guardiano!"</i>
+            <b>🕯️ Enigma Finale del Guardiano:</b><br>
+            <i>"Siete giunti allo sterrato della Cava, ma l'ultimo guardiano non chiede un nome di pietra o di terra.<br><br>
+            Rispondete al suo enigma:<br><br>
+            <b>'Tutti la cercano nell'oscurità della vita, ma pochi la trovano davvero. Non si può comprare né spezzare, e quando fa capolino scaccia ogni maledizione dal cuore. Cos'è?'</b>"</i>
         </div>
-        <button class="scan-btn" onclick="startScanner(8, 'CAVA', 'step10')">📷 SCATTA QR CODE 8</button>
-        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
-        <input type="text" id="ans8" placeholder="Codice trovato">
+        <button class="scan-btn" onclick="startScanner(8, 'FELICITA', 'step10')">📷 SCATTA QR CODE 8</button>
+        <p style="font-size: 11px;"><i>oppure inserisci la risposta trovata:</i></p>
+        <input type="text" id="ans8" placeholder="Risposta enigma">
         <br>
-        <button onclick="checkStep(8, 'CAVA', 'step10')">Spezza l'Ultimo Sigillo</button>
+        <button onclick="checkStep8Final()">Spezza l'Ultimo Sigillo</button>
         <p id="err8" class="alert"></p>
     </div>
-    
-        <!-- TAPPA 9: PARCO DELLA CAVA (Codice = HALLOWEEN) -->
-    <div id="step9" class="card hidden">
-        <h2>🩸 IX. Lo Sterrato della Cava</h2>
-        <div class="map-clue-box">
-            <img src="img/tappa9.jpg" alt="Tappa 9" onerror="this.style.display='none'">
-        </div>
-        <div class="location-hint">
-            <b>🕯️ Enigma Toponomastico:</b><br>
-            <i>"Abbandonate l'asfalto ed entrate sul sentiero sterrato del parco dove un tempo si scavava la terra. Tra gli alberi vi attende l'ultimo Guardiano!"</i>
-        </div>
-        <button class="scan-btn" onclick="startScanner(9, 'HALLOWEEN', 'step10')">📷 SCATTA QR CODE 9</button>
-        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
-        <input type="text" id="ans9" placeholder="Codice trovato">
-        <br>
-        <button onclick="checkStep(9, 'HALLOWEEN', 'step10')">Spezza l'Ultimo Sigillo</button>
-        <p id="err9" class="alert"></p>
-    </div>
-    
 
     <!-- TRAGUARDO FINALE -->
     <div id="step10" class="card hidden">
         <h2 style="font-size: 26px; color: var(--ghost-green);">☠️ COMPLIMENTI! ☠️</h2>
-        <p>Avete ricomposto l'intera catena e spezzato il maleficio di Pontevecchio!</p>
-        <div style="border: 2px dashed var(--ghost-green); padding: 10px; background: #000; margin-top: 10px;">
-            <p style="margin: 0; font-size: 12px; color: #aaa;">MASTER CODE CASSA FINALE:</p>
-            <h3 style="color: var(--bright-red); font-family: 'Nosifer', cursive; font-size: 10px; margin: 10px 0; word-break: break-all;">FONTE-CURA-1859-OMBRA-FERRO-32-TUFFO-CAVA</h3>
+        <p style="font-size: 15px; color: #fff; margin-top: 15px;">
+            Avete ricomposto l'intera catena e spezzato il maleficio di Pontevecchio!
+        </p>
+        <div style="border: 2px dashed var(--bright-red); padding: 15px; background: rgba(20,0,0,0.9); margin-top: 15px; border-radius: 8px;">
+            <p style="margin: 0; font-size: 13px; color: #ff3333; font-weight: bold;">📜 IL SEGRETO DEL TESORO:</p>
+            <h3 style="color: var(--ghost-green); font-family: 'Special Elite', cursive; font-size: 18px; margin: 15px 0; line-height: 1.4;">
+                "Il tesoro si trova... Lo sa solo Alessandro Baglio!"
+            </h3>
+        </div>
+        <div style="border: 1px solid var(--ghost-green); padding: 10px; background: #000; margin-top: 15px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 11px; color: #aaa;">MASTER CODE CASSA FINALE:</p>
+            <h4 style="color: var(--bright-red); font-family: 'Nosifer', cursive; font-size: 9px; margin: 5px 0; word-break: break-all;">
+                FONTE-CURA-1859-OMBRA-FERRO-32-TUFFO-FELICITA
+            </h4>
         </div>
     </div>
 
