@@ -489,3 +489,53 @@
         <button onclick="checkStep(7, 'AMICIZIA', 'step8')">Spezza il Sigillo</button>
         <p id="err7" class="alert"></p>
     <
+        <button class="scan-btn" onclick="startScanner(7, 'AMICIZIA', 'step8')">📷 SCATTA QR CODE 7</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans7" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(7, 'AMICIZIA', 'step8')">Spezza il Sigillo</button>
+        <p id="err7" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 8: PARCO DELLA CAVA (Codice Finale = FELICITA) -->
+    <div id="step8" class="card hidden">
+        <h2>🩸 VIII. Lo Sterrato della Cava</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa8.jpg" alt="Tappa 8" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Finale dell'Acrostico:</b><br>
+            <i>"Sentiero sterrato del parco dove un tempo si scavava la terra. Tra gli alberi vi attende l'ultimo Guardiano!<br><br>
+            Unite le <b>prime lettere</b> di tutti i sigilli trovati fino ad ora:<br>
+            <b>[F]</b>ONTE - <b>[E]</b>RBE - <b>[L]</b>EGNO - <b>[I]</b>SOLA - <b>[C]</b>AMPANA - <b>[I]</b>LLUMINAZIONE - <b>[T]</b>UFFO...<br><br>
+            Per l'ultima lettera, pensate a qual è la prima lettera del sentimento e del rapporto profondo che vi unisce in questa notte? [<b>A</b>micizia]<br><br>
+            <b>Qual è la parola finale di 8 lettere che si compone?</b>"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(8, 'FELICITA', 'step10')">📷 SCATTA QR CODE 8</button>
+        <p style="font-size: 11px;"><i>oppure inserisci la parola composta:</i></p>
+        <input type="text" id="ans8" placeholder="Parola dell'Acrostico">
+        <br>
+        <button onclick="checkStep8Final()">Spezza l'Ultimo Sigillo</button>
+        <p id="err8" class="alert"></p>
+    </div>
+
+    <!-- TRAGUARDO FINALE -->
+    <div id="step10" class="card hidden">
+        <h2 style="font-size: 26px; color: var(--ghost-green);">☠️ COMPLIMENTI! ☠️</h2>
+        <p style="font-size: 15px; color: #fff; margin-top: 15px;">
+            Avete ricomposto l'intera catena e spezzato il maleficio di Pontevecchio!
+        </p>
+        <div style="border: 2px dashed var(--bright-red); padding: 15px; background: rgba(20,0,0,0.9); margin-top: 15px; border-radius: 8px;">
+            <p style="margin: 0; font-size: 13px; color: #ff3333; font-weight: bold;">📜 IL SEGRETO DEL TESORO:</p>
+            <h3 style="color: var(--ghost-green); font-family: 'Special Elite', cursive; font-size: 18px; margin: 15px 0; line-height: 1.4;">
+                "Il tesoro si trova... Lo sa solo Alessandro Baglio!"
+            </h3>
+        </div>
+        <div style="border: 1px solid var(--ghost-green); padding: 10px; background: #000; margin-top: 15px; border-radius: 6px;">
+            <p style="margin: 0; font-size: 11px; color: #aaa;">MASTER CODE CASSA FINALE:</p>
+            <h4 style="color: var(--bright-red); font-family: 'Nosifer', cursive; font-size: 9px; margin: 5px 0; word-break: break-all;">
+                F-E-L-I-C-I-T-A (FONTE-ERBE-LEGNO-ISOLA-CAMPANA-ILLUMINAZIONE-TUFFO-AMICIZIA)
+            </h4>
+        </div>
+    </div>
+    
