@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Ombra di Pontevecchio - Escape Night</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Special+Elite&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --blood-red: #8b0000;
+            --bright-red: #ff0000;
+            --ghost-green: #00ff66;
+            --dark-bg: #050203;
+            --panel-bg: rgba(15, 3, 5, 0.92);
+            --neon-glow: rgba(255, 0, 0, 0.6);
+        }
+
+        @keyframes bloodPulse {
+            0% { background-color: #050203; }
+            50% { background-color: #1a0305; }
+            100% { background-color: #050203; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 15px var(--bright-red); }
+            50% { opacity: 0.8; text-shadow: 0 0 5px var(--blood-red); }
+            75% { opacity: 0.4; text-shadow: none; }
+            80% { opacity: 0.9; text-shadow: 0 0 20px var(--bright-red); }
+        }
+
+        @keyframes crawl {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(120px, 80px) rotate(45deg); }
+            50% { transform: translate(250px, 30px) rotate(-20deg); }
+            75% { transform: translate(350px, 150px) rotate(90deg); }
+            100% { transform: translate(500px, -50px) rotate(0deg); }
+        }
+
+        body { 
+            background-color: var(--dark-bg); 
+            animation: bloodPulse 8s infinite ease-in-out;
+            color: #e0d7cd; 
+            font-family: 'Special Elite', cursive, monospace; 
+            padding: 10px; 
+            text-align: center; 
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* SFONDO CON TELE DI RAGNO AI BORDI */
+        body::before {
+            content: "🕸️";
+            position: fixed;
+            top: -10px;
+            left: -10px;
+            font-size: 70px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 100;
+        }
+        body::after {
+            content: "🕸️";
+            position: fixed;
+            top: -10px;
+            right: -10px;
+            font-size: 70px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 100;
+            transform: scaleX(-1);
+        }
+
+        /* RAGNI CHE CAMMINANO */
+        .spider {
+            position: fixed;
+            font-size: 24px;
+            z-index: 9999;
+            pointer-events: auto;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        h1 { 
+            font-family: 'Nosifer', cursive;
+            color: var(--bright-red); 
+            text-transform: uppercase; 
+            font-size: 22px;
+            letter-spacing: 2px; 
+            animation: flicker 3s infinite;
+            margin-top: 15px;
+        }
+
+        h2 {
+            font-family: 'Creepster', cursive;
+            color: #ff3333;
+            font-size: 26px;
+            margin-top: 5px;
+            text-shadow: 2px 2px 8px #000, 0 0 12px var(--blood-red);
+            letter-spacing: 1px;
+        }
+
+        p.intro { 
+            font-size: 13px; 
+            color: #b0a599; 
+            font-style: italic; 
+            text-shadow: 0 0 5px #000;
+        }
+
+        .card { 
+            border: 2px solid var(--blood-red); 
+            background: var(--panel-bg); 
+            backdrop-filter: blur(5px);
+            padding: 20px; 
+            margin: 15px auto; 
+            max-width: 480px;
+            border-radius: 16px; 
+            box-shadow: 0 0 30px var(--neon-glow), inset 0 0 20px rgba(0, 0, 0, 0.9);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .location-hint { 
+            background: rgba(10, 0, 2, 0.88); 
+            border-left: 4px solid var(--bright-red); 
+            border-right: 1px solid var(--blood-red);
+            padding: 14px; 
+            margin: 14px 0; 
+            text-align: left; 
+            font-size: 13.5px; 
+            line-height: 1.6;
+            box-shadow: inset 0 0 12px #000;
+            border-radius: 6px;
+        }
+
+        .map-clue-box {
+            margin: 14px 0;
+            border: 2px solid var(--bright-red);
+            border-radius: 10px;
+            background: #000;
+            padding: 8px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-clue-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            filter: contrast(110%) brightness(90%);
+        }
+
+        .photo-caption {
+            font-size: 13px;
+            color: #ff6666;
+            margin-top: 8px;
+            font-family: 'Creepster', cursive;
+            letter-spacing: 1px;
+        }
+
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #scanner-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 360px;
+            border: 2px solid var(--bright-red);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px var(--bright-red);
+        }
+        
+        input[type="text"] { 
+            background: #080002; 
+            border: 2px solid var(--bright-red); 
+            color: var(--ghost-green); 
+            font-family: 'Creepster', cursive;
+            letter-spacing: 4px;
+            padding: 12px; 
+            font-size: 24px; 
+            width: 85%; 
+            margin-bottom: 15px; 
+            text-align: center; 
+            border-radius: 8px; 
+            outline: none;
+            box-shadow: inset 0 0 12px rgba(255, 0, 0, 0.5), 0 0 10px rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--ghost-green);
+            box-shadow: inset 0 0 12px rgba(0, 255, 102, 0.5), 0 0 15px var(--ghost-green);
+        }
+
+        button { 
+            background: linear-gradient(180deg, #990000 0%, #400000 100%);
+            color: #fff; 
+            border: 1px solid #ff6666; 
+            padding: 14px 22px; 
+            font-family: 'Special Elite', cursive;
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            text-transform: uppercase; 
+            margin: 8px 4px; 
+            display: inline-block; 
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.8);
+        }
+
+        .start-btn {
+            font-family: 'Creepster', cursive;
+            font-size: 24px;
+            padding: 18px 30px;
+            background: linear-gradient(180deg, #ff0000 0%, #8b0000 100%);
+            color: #fff;
+            border: 2px solid #fff;
+            box-shadow: 0 0 35px var(--bright-red);
+            animation: flicker 1.5s infinite;
+        }
+
+        .scan-btn { 
+            background: linear-gradient(180deg, #0088aa 0%, #003344 100%); 
+            border-color: #66fcf1; 
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+        }
+
+        .radar-btn {
+            background: linear-gradient(180deg, #006622 0%, #00220a 100%) !important;
+            border-color: #00ff66 !important;
+            color: #00ff66 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.4) !important;
+        }
+
+        .cancel-btn { background: #222; border-color: #666; color: #aaa; }
+        .hidden { display: none !important; }
+        
+        .alert { 
+            color: var(--bright-red); 
+            font-family: 'Creepster', cursive; 
+            font-size: 22px; 
+            margin-top: 10px;
+        }
+
+        /* RADAR MODALE */
+        #radar-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-box {
+            border: 2px solid #00ff66;
+            background: #030d06;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.5);
+            text-align: center;
+            max-width: 330px;
+            width: 90%;
+        }
+
+        .radar-viewport {
+            width: 220px;
+            height: 220px;
+            border: 2px solid #00ff66;
+            border-radius: 50%;
+            margin: 15px auto;
+            position: relative;
+            background: radial-gradient(circle, rgba(0,255,102,0.1) 0%, rgba(0,0,0,0.95) 75%);
+            overflow: hidden;
+            box-shadow: inset 0 0 20px #00ff66;
+        }
+
+        .player-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 10px; height: 10px;
+            background: #00ff66;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px #00ff66;
+            z-index: 10;
+        }
+
+        .radar-grid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            transition: transform 0.1s ease-out;
+        }
+
+        .radar-grid::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 1px;
+            background: rgba(0, 255, 102, 0.3);
+        }
+        .radar-grid::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%; width: 1px; height: 100%;
+            background: rgba(0, 255, 102, 0.3);
+        }
+
+        .radar-line {
+            width: 50%; height: 50%;
+            background: linear-gradient(45deg, rgba(0,255,102,0.8) 0%, transparent 70%);
+            position: absolute;
+            top: 0; left: 0;
+            transform-origin: 100% 100%;
+            animation: radarScan 2s linear infinite;
+            border-radius: 100% 0 0 0;
+        }
+
+        @keyframes radarScan {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spirit-dot {
+            position: absolute;
+            width: 12px; height: 12px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #ff0000;
+            transform: translate(-50%, -50%);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- RAGNI ANIMATI SPARTITI SULLO SCHERMO -->
+    <div class="spider" id="spider1" style="top: 15%; left: -40px;" onclick="squishSpider(this)">🕷️</div>
+    <div class="spider" id="spider2" style="top: 60%; right: -40px;" onclick="squishSpider(this)">🕷️</div>
+
+    <!-- AUDIO LOCALI -->
+    <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
+    <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
+    <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
+
+    <!-- SCHERMATA D'INGRESSO OVERLAY -->
+    <div id="start-overlay">
+        <h1 style="font-size: 30px; margin-bottom: 20px;">👁️ SEI PRONTO? 👁️</h1>
+        <p style="color: #aaa; font-size: 14px; margin-bottom: 30px; max-width: 300px;">
+            Alzate il volume per ascoltare la maledizione...
+        </p>
+        <button class="start-btn" onclick="unlockAudioAndStart()">🕯️ ENTRA SE HAI CORAGGIO</button>
+    </div>
+
+    <h1>🕸️ PONTEVECCHIO NIGHT 🎃</h1>
+    <p class="intro"><i>"Decifrate gli enigmi per scoprire dove vi condurrà la notte..."</i></p>
+
+    <!-- PULSANTE RADAR DELL'OCCULTO -->
+    <button class="radar-btn" onclick="openRadar()">📡 RADAR GIROSCOPICO</button>
+
+    <!-- SCANNER MODALE -->
+    <div id="scanner-modal" class="hidden">
+        <h3 style="color: var(--ghost-green); font-family: 'Creepster', cursive; margin-bottom: 10px;">📷 INQUADRA IL QR CODE</h3>
+        <div id="reader"></div>
+        <button class="cancel-btn" onclick="stopScanner()" style="margin-top: 15px;">✖ Chiudi Fotocamera</button>
+    </div>
+
+    <!-- RADAR MODALE CON GIROSCOPIO -->
+    <div id="radar-modal" class="hidden">
+        <div class="radar-box">
+            <h3 style="color: #00ff66; font-family: 'Creepster', cursive; margin-bottom: 5px;">📡 RILEVATORE ANIME PERDUTE</h3>
+            <p style="color: #888; font-size: 11px; margin-bottom: 10px;">Ruota fisicamente su te stesso per individuare le presenze</p>
+            
+            <div class="radar-viewport">
+                <div class="player-center"></div>
+                <div id="radar-grid" class="radar-grid">
+                    <div class="radar-line"></div>
+                    <div id="spirit-target" class="spirit-dot"></div>
+                </div>
+            </div>
+
+            <p id="radar-distance" style="color: #ff3333; font-weight: bold; font-size: 18px; margin-top: 10px;">DISTANZA: -- m</p>
+            <p id="radar-status" style="color: #00ff66; font-size: 12px; margin-top: 5px;">Scansione frequenze...</p>
+            
+            <button class="cancel-btn" onclick="closeRadar()" style="margin-top: 15px;">✖ Chiudi Radar</button>
+        </div>
+    </div>
+
+    <!-- SCHERMATA START -->
+    <div id="step-start" class="card">
+        <h2>🩸 Punto di Partenza</h2>
+        <div class="location-hint">
+            <b>🕯️ Benvenuti all'Escape Night:</b><br>
+            <i>"Siete pronti a spezzare i sigilli dell'Ombra?<br><br>
+            Premete il pulsante qua sotto per andare alla prima tappa!"</i>
+        </div>
+        <button class="start-btn" style="font-size: 20px; width: 90%; margin-top: 15px;" onclick="goToNextStep('step-start', 'step0')">🚪 INIZIA LA CACCIA</button>
+    </div>
+
+    <!-- TAPPA 0: I CADUTI (Codice = FONTE) -->
+    <div id="step0" class="card hidden">
+        <h2>🩸 0. Il Risveglio delle Ombre</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa0.jpg" alt="Tappa 0" onerror="this.style.display='none'">
+            <div class="photo-caption">🕯️ Monumento ai Caduti</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Alzate lo sguardo verso l'alta torre di pietra dove il bronzo scandisce le ore nel buio della piazza.<br><br>
+            Alla sua base, nel luogo consacrato alla memoria di chi ha combattuto ed è svanito nel tempo, vi attende il PRIMO SIGILLO nascosto.<br><br>
+            <b>Scovate la pietra del ricordo sotto la torre per spezzare il primo codice!</b>"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(0, 'FONTE', 'step1')">📷 SCATTA QR CODE 0</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans0" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(0, 'FONTE', 'step1')">Spezza il Sigillo</button>
+        <p id="err0" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 1: LA CASETTA DELL'ACQUA (Codice = CURA) -->
+    <div id="step1" class="card hidden">
+        <h2>🩸 I. La Fonte Gelida</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa1.jpg" alt="Tappa 1" onerror="this.style.display='none'">
+            <div class="photo-caption">❄️ Casetta dell'Acqua</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Dove la fonte pura sgorga senza sosta per dissetare i viandanti. Nel buio della notte l'acqua scorre fredda: trovate la casetta di pietra dove il secondo sigillo è custodito."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(1, 'CURA', 'step2')">📷 SCATTA QR CODE 1</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans1" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(1, 'CURA', 'step2')">Spezza il Sigillo</button>
+        <p id="err1" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 2: LA FARMACIA (Codice = 1859) -->
+    <div id="step2" class="card hidden">
+        <h2>🩸 II. Il Rifugio della Guarigione</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa2.jpg" alt="Tappa 2" onerror="this.style.display='none'">
+            <div class="photo-caption">⚕️ La Farmacia</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Un tempo qui si cercavano rimedi e spezie per scacciare la peste. La croce veglia sugli ammalati: cercate il sigillo dove si trova la pozione per la cura."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(2, '1859', 'step3')">📷 SCATTA QR CODE 2</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans2" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(2, '1859', 'step3')">Spezza il Sigillo</button>
+        <p id="err2" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 3: RETRO VILLA CASTIGLIONI (Codice = OMBRA) -->
+    <div id="step3" class="card hidden">
+        <h2>🩸 III. Il Giardino della Battaglia</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa3.jpg" alt="Tappa 3" onerror="this.style.display='none'">
+            <div class="photo-caption">⚔️ Retro Villa Castiglioni</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Sul retro della nobile Villa Castiglioni, dove l'erba del parchetto ricorda il sangue dei soldati caduti. Trovate l'anno dello storico scontro del paese."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(3, 'OMBRA', 'step4')">📷 SCATTA QR CODE 3</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans3" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(3, 'OMBRA', 'step4')">Spezza il Sigillo</button>
+        <p id="err3" class="alert"></p>
+    </div>
+
+    <!-- TAPPA 4: PONTE DI PIETRA (Codice = FERRO) -->
+    <div id="step4" class="card hidden">
+        <h2>🩸 IV. Il Passaggio di Roccia</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa4.jpg" alt="Tappa 4" onerror="this.style.display='none'">
+            <div class="photo-caption">🌉 Ponte di Pietra</div>
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Sotto solide arcate di pietra che uniscono le due sponde del grande Naviglio. Dove i passi risuonano sulla roccia antica, cercate il quinto sigillo."</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(4, 'FERRO', 'step5')">📷 SCATTA QR CODE 4</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p
