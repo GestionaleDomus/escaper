@@ -303,29 +303,43 @@
 </head>
 <body>
 
-    <!-- SCHERMATA BLOCCO AUTENTICAZIONE -->
-    <div id="auth-overlay">
-        <h1 style="font-size:28px;">☠️ ACCESSO NEGATO ☠️</h1>
-        <p style="color:#aaa; font-family:sans-serif; font-size:14px; max-width:300px; margin-bottom:20px;">
-            Inserisci il codice per sbloccare l'Escape Night di Pontevecchio!
-        </p>
-        <input type="text" id="manual-token" placeholder="CODICE SQUADRA">
-        <button onclick="sbloccaManualmente()" style="background:#8b0000; color:#fff; border:none; padding:12px 20px; font-weight:bold; cursor:pointer; border-radius:6px; margin-top:10px;">SBLOCCA</button>
-    </div>
+            // --- AUTENTICAZIONE E ACCESSO ---
+        const TOKEN_CORRETTO = "NOTTE2026"; 
 
-    <!-- AUDIO LOCALI -->
-    <audio id="bg-music" src="audio/sottofondo.mp3" loop preload="auto"></audio>
-    <audio id="error-sound" src="audio/errore.mp3" preload="auto"></audio>
-    <audio id="success-sound" src="audio/vittoria.mp3" preload="auto"></audio>
+        function verificaAccesso() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenUrl = urlParams.get('code');
 
-    <!-- SCHERMATA D'INGRESSO OVERLAY -->
-    <div id="start-overlay" class="hidden">
-        <h1 style="font-size: 28px; margin-bottom: 20px;">👁️ SEI PRONTO? 👁️</h1>
-        <p style="color: #aaa; font-size: 14px; margin-bottom: 30px; max-width: 300px;">
-            Alzate il volume per ascoltare la maledizione...
-        </p>
-        <button class="start-btn" onclick="document.getElementById('start-overlay').style.display='none'; unlockAudioAndStart();">🕯️ ENTRA SE HAI CORAGGIO</button>
-    </div>
+            if (tokenUrl && tokenUrl.trim().toUpperCase() === TOKEN_CORRETTO) {
+                localStorage.setItem('escape_authenticated', 'true');
+            }
+
+            if (localStorage.getItem('escape_authenticated') === 'true') {
+                const authDiv = document.getElementById('auth-overlay');
+                const startDiv = document.getElementById('start-overlay');
+                if (authDiv) authDiv.style.display = 'none';
+                if (startDiv) startDiv.classList.remove('hidden');
+            }
+        }
+
+        function sbloccaManualmente() {
+            const inputEl = document.getElementById('manual-token');
+            if (!inputEl) return;
+            
+            const inputVal = inputEl.value.trim().toUpperCase();
+            if (inputVal === TOKEN_CORRETTO) {
+                localStorage.setItem('escape_authenticated', 'true');
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('start-overlay').classList.remove('hidden');
+            } else {
+                alert("⚠️ Codice squadra non valido!");
+            }
+        }
+
+        // Esegui la verifica sia al caricamento del DOM che su window.onload per sicurezza
+        document.addEventListener('DOMContentLoaded', verificaAccesso);
+        window.onload = verificaAccesso;
+
 
     <h1>🕸️ PONTEVECCHIO NIGHT 🎃</h1>
     <p class="intro"><i>"Decifrate gli enigmi per scoprire dove vi condurrà la notte..."</i></p>
