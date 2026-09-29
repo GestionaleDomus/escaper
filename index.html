@@ -599,6 +599,23 @@
                 document.getElementById('err' + currentStep).innerText = "☠️ Codice errato! Rileggi l'enigma.";
             }
         }
+        
+        function checkStep8Final() {
+            let inputEl = document.getElementById('ans8');
+            if (!inputEl) return;
+            
+            let inputVal = inputEl.value.trim().toUpperCase();
+            // Rimuove gli accenti (es. FELICITÀ -> FELICITA)
+            inputVal = inputVal.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            if (inputVal === "FELICITA") {
+                goToNextStep('step8', 'step10');
+            } else {
+                playErrorSound();
+                if ("vibrate" in navigator) navigator.vibrate(200);
+                document.getElementById('err8').innerText = "☠️ Risposta errata! Rileggi l'enigma.";
+            }
+        }
 
         function startScanner(step, expectedAnswer, nextStep) {
             activeStep = step;
