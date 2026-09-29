@@ -534,6 +534,25 @@
         <button onclick="checkStep(8, 'CAVA', 'step10')">Spezza l'Ultimo Sigillo</button>
         <p id="err8" class="alert"></p>
     </div>
+    
+        <!-- TAPPA 9: PARCO DELLA CAVA (Codice = HALLOWEEN) -->
+    <div id="step9" class="card hidden">
+        <h2>🩸 IX. Lo Sterrato della Cava</h2>
+        <div class="map-clue-box">
+            <img src="img/tappa9.jpg" alt="Tappa 9" onerror="this.style.display='none'">
+        </div>
+        <div class="location-hint">
+            <b>🕯️ Enigma Toponomastico:</b><br>
+            <i>"Abbandonate l'asfalto ed entrate sul sentiero sterrato del parco dove un tempo si scavava la terra. Tra gli alberi vi attende l'ultimo Guardiano!"</i>
+        </div>
+        <button class="scan-btn" onclick="startScanner(9, 'HALLOWEEN', 'step10')">📷 SCATTA QR CODE 9</button>
+        <p style="font-size: 11px;"><i>oppure inserisci il codice trovato:</i></p>
+        <input type="text" id="ans9" placeholder="Codice trovato">
+        <br>
+        <button onclick="checkStep(9, 'HALLOWEEN', 'step10')">Spezza l'Ultimo Sigillo</button>
+        <p id="err9" class="alert"></p>
+    </div>
+    
 
     <!-- TRAGUARDO FINALE -->
     <div id="step10" class="card hidden">
